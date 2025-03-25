@@ -16,7 +16,6 @@ class UserManager(models.Manager):
             return None
         
     def validate_login(self, fields):
-        
         return {}
     
     def validate_signup(self, fields):

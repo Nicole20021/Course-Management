@@ -20,7 +20,7 @@ def logout(request):
      
         
 def home(request):
-    if request.session['user']:
+    if 'user' in request.session:
         return redirect('course_list')
     return redirect('login')
     
