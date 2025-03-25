@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Student Profile{% endblock %}
+
+{% block content %}
+<h2>Student Profile</h2>
+<div class="card">
+    <div class="card-body">
+        <p class="card-title"><strong>
+                <h3>
+                    {{ student.first_name }} {{ student.last_name }}
+                </h3>
+                {% if student.is_active %}
+                <span class="text-success">✅ Active</span>
+                {% else %}
+                <span class="text-danger">❌ Not Active</span>
+                {% endif %}
+            </strong></p>
+        <p><strong>Email:</strong> {{ student.email }}</p>
+        <p><strong>Phone:</strong> {{ student.phone }}</p>
+        <h4>Enrolled Courses</h4>
+        <ul class="list-group">
+            {% for enrollment in enrollments %}
+            <li class="list-group-item">
+                {{ enrollment.course.name }} ({{enrollment.course.field}}) - [{{ enrollment.course.start_date }}]
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No courses enrolled.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

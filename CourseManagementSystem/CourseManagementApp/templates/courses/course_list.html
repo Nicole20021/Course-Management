@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+<h2>Courses</h2>
+{% if request.session.user.role == "admin" %}
+<a href="{% url 'course_add' %}" class="btn btn-primary">+ Add New Course</a>
+{% endif %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Start Date</th>
+            <th>Credits</th>
+            <th>Cost</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.id }}</td>
+            <td>{{ course.name }}</td>
+            <td>{{ course.start_date }}</td>
+            <td>{{ course.credits }}</td>
+            <td>${{ course.cost }}</td>
+            <td>
+                <a href="{% url 'course_detail' course.id %}" class="btn btn-info btn-sm">Show</a>
+                {% if request.session.user.role == 'admin' %}
+                <a href="{% url 'course_edit' course.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'course_delete' course.id %}" class="btn btn-danger btn-sm">Delete</a>
+                {% else %}
+                {% if course.is_enrolled %}
+                <a href="{% url 'cancel_enrollment' course.id %}" class="btn btn-secondary btn-sm">Cancel</a>
+                {% else %}
+                <a href="{% url 'enroll_course' course.id %}" class="btn btn-success btn-sm">Enroll</a>
+                {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

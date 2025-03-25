@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Enrollment Reports{% endblock %}
+
+{% block content %}
+<h2>Enrollment Reports</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Enrolled Students</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.name }}</td>
+            <td>
+                {% for enrollment in course.enrollment_set.all %}
+                {{ enrollment.student.username }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                <span class="text-muted">No students enrolled</span>
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

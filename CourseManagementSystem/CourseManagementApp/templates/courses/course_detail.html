@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Course Details{% endblock %}
+
+{% block content %}
+<h2>
+    <a href="{% url 'course_list' %}">Courses</a>
+    > Show
+</h2>
+<br>
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="name" class="form-label">Course Name</label>
+                <input class="form-control" id="name" name="name" value="{{ course.name|default:'' }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="field" class="form-label">Field</label>
+                <input class="form-control" id="field" name="field" value="{{ course.field|default:'' }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input class="form-control" id="start_date" name="start_date" value="{{ course.start_date|default:'' }}"
+                    readonly>
+            </div>
+            <div class="mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input class="form-control" id="end_date" name="end_date" value="{{ course.end_date|default:'' }}"
+                    readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="credits" class="form-label">Credits</label>
+                <input class="form-control" id="credits" name="credits" value="{{ course.credits|default:'' }}"
+                    readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="cost" class="form-label">Cost</label>
+                <input class="form-control" id="cost" name="cost" value="{{ course.cost|default:'' }}" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="sale" class="form-label">Sale (%)</label>
+                <input class="form-control" id="sale" name="sale" value="{{ course.sale|default:'0.0' }}" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description"
+                    readonly>{{ course.description|default:'' }}</textarea>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

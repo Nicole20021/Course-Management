@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<h2>Students</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Phone</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.id }}</td>
+            <td>{{ student.first_name }} {{ student.last_name }}</td>
+            <td>{{ student.phone }}</td>
+            <td>
+                <a href="{% url 'student_detail' student.id %}" class="btn btn-info btn-sm">Show</a>
+                {% if student.is_active %}
+                <a href="{% url 'student_activation' student.id %}" class="btn btn-danger btn-sm">Deactivate</a>
+                {% else %}
+                <a href="{% url 'student_activation' student.id %}" class="btn btn-success btn-sm">Activate</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
