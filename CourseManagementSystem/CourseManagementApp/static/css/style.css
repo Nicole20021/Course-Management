@@ -1,4 +1,8 @@
 body {
+    background-image: url("../images/background.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+
     padding-top: 56px;
     background-color: #f8f9fa;
     /* Light gray background */
@@ -16,8 +20,10 @@ body {
 }
 
 .navbar {
-    background-color: #343a40 !important;
     /* Dark navbar */
+    background-color: #343a40 !important;
+    padding-left:  20%;
+    padding-right:  20%;
 }
 
 .navbar-brand {
@@ -46,4 +52,14 @@ body {
 
 .btn-custom:hover {
     background-color: #0056b3;
+}
+
+.form_title {
+    text-align: center;
+    font-weight: bolder;
+}
+
+.table_actions {
+    display: flex;
+    justify-content: space-between;
 }

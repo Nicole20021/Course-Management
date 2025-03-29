@@ -2,15 +2,26 @@
 {% block title %}Courses{% endblock %}
 
 {% block content %}
-<h2>Courses</h2>
-{% if request.session.user.role == "admin" %}
-<a href="{% url 'course_add' %}" class="btn btn-primary">+ Add New Course</a>
-{% endif %}
+<h2 class="form_title">Courses</h2>
+<br>
+<div class="table_actions">
+    <!-- Search Form -->
+    <form method=" GET" action="{% url 'course_list' %}" class="d-flex">
+        <button type="submit" class="btn btn-outline-primary">Search</button>
+        <input type="text" name="q" class="form-control me-2" placeholder="Search courses..."
+            value="{{ request.GET.q }}">
+    </form>
+    {% if request.session.user.role == "admin" %}
+    <a href="{% url 'course_add' %}" class="btn btn-primary">+ Add New Course</a>
+    {% endif %}
+</div>
+<br>
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Field</th>
             <th>Start Date</th>
             <th>Credits</th>
             <th>Cost</th>
@@ -22,6 +33,7 @@
         <tr>
             <td>{{ course.id }}</td>
             <td>{{ course.name }}</td>
+            <td>{{ course.field }}</td>
             <td>{{ course.start_date }}</td>
             <td>{{ course.credits }}</td>
             <td>${{ course.cost }}</td>

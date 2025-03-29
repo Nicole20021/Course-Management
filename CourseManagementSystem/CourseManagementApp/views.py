@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Course, User, Enrollment
 
 
-# Authentication Forms
+# Authentication functions
 def login(request, user):
     request.session['user'] = {
         'id': user.id,
@@ -18,7 +18,7 @@ def logout(request):
     request.session['user']=None
      
      
-        
+# Home view  
 def home(request):
     if 'user' in request.session:
         return redirect('course_list')
@@ -29,11 +29,11 @@ def home(request):
 def signup_view(request):
     errors = {}
     if request.method == 'POST':
-        errors = User.objects.validate_login(request.POST)
+        errors = User.objects.validate_signup(request.POST)
         if len(errors)==0:
             user = User.objects.save(request.POST)
             return redirect('login')
-    return render(request, 'registration/signup.html', {'errors': errors})
+    return render(request, 'registration/signup.html', {'errors': errors, 'fields':request.POST})
 
 # Login View (For Admin and Student)
 def login_view(request):
@@ -41,18 +41,17 @@ def login_view(request):
     if request.method == 'POST':
         errors = User.objects.validate_login(request.POST)
         if len(errors)==0:
-            user = User.objects.select(request.POST['username'], request.POST['password'])
+            user = User.objects.select(request.POST['username'])
             if user:
                 login(request, user)
-                print("\n\n",request.session['user'],"\n\n")
                 return redirect('home')
-        # else:
-        #     messages.error(request, "Invalid username or password. Please try again.")
-    return render(request, 'registration/login.html', {'errors': errors})
+
+    return render(request, 'registration/login.html', {'errors': errors, 'fields': request.POST})
 
 # Logout View (For Admin and Student)
 def logout_view(request):
-    logout(request)
+    if 'user' in request.session:
+        logout(request)
     return redirect('login')
 
 # Course Views
@@ -60,6 +59,11 @@ def logout_view(request):
 def course_list(request):
     if request.session['user']:
         courses = Course.objects.all()
+        if request.GET:
+            query = request.GET.get('q', '')
+            if query:
+                courses = Course.objects.filter(name__icontains=query)
+
         if request.session['user']['role'] == "student":
             student = User.objects.get(id = request.session['user']['id'])
             # Add `is_enrolled` attribute to each course
@@ -77,7 +81,6 @@ def course_detail(request, course_id):
 
 # Course Add (Admin only)
 def course_add(request):
-    print(request.session['user'])
     if request.method == 'POST' and request.session['user']['role'] == 'admin':
         name = request.POST['name']
         field = request.POST['field']
@@ -118,10 +121,11 @@ def course_delete(request, course_id):
 # Enroll Course (Student only)
 def enroll_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    if request.session['user'] and request.session['user']['role'] == 'student':
+    if 'user' in request.session and request.session['user']['role'] == 'student':
         student = User.objects.get(id = request.session['user']['id'])
         Enrollment.objects.get_or_create(student=student, course=course)
-    return redirect('course_list')
+        return redirect('course_list')
+    return redirect('home')
 
 # Cancel Enrollment (Student only)
 def cancel_enrollment(request, course_id):
@@ -135,9 +139,14 @@ def cancel_enrollment(request, course_id):
 # Student Views
 # Student List (Admin Only)
 def student_list(request):
-    if request.session['user'] and request.session['user']['role'] == 'admin':
+    if 'user' in request.session and request.session['user']['role'] == 'admin':
         students = User.objects.filter(role='student')
+        if request.GET:
+            query = request.GET.get('q', '')
+            if query:
+                students = User.objects.filter(name__icontains=query, role='student')
         return render(request, 'students/student_list.html', {'students': students})
+    
     return redirect('home')
 
 # Student Details (For Admin and Student)
@@ -151,7 +160,7 @@ def student_activation(request, student_id):
     student = get_object_or_404(User, id=student_id, role='student')
     student.is_active = not student.is_active  # Toggle activation status
     student.save()
-    return redirect('student_list')  # Redirect to the student list page
+    return redirect('student_list')  
 
 # admin
 def reports_view(request):

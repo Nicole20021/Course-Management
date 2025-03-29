@@ -8,7 +8,7 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    # student
+    # course
     path('courses/', views.course_list, name='course_list'),
     path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
     path('courses/add/', views.course_add, name='course_add'),
@@ -19,7 +19,6 @@ urlpatterns = [
     # student
     path('students/', views.student_list, name='student_list'),
     path('students/<int:student_id>/', views.student_detail, name='student_detail'),
-    path('students/<int:student_id>/activation/', views.student_activation, name='student_activation'),
     path('students/<int:student_id>/activation/', views.student_activation, name='student_activation'),
     # admin
     path('reports/', views.reports_view, name='reports'),

@@ -1,3 +1,5 @@
+import re
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
 
 class UserManager(models.Manager):
@@ -6,21 +8,90 @@ class UserManager(models.Manager):
             username = fields['username'],
             first_name = fields['first_name'],
             last_name = fields['last_name'],
-            email = fields['email'],
-            password = fields['password']
+            phone = fields.get('phone', None),
+            email = fields.get('email', None),
+            password = make_password(fields['password'])  # Hash the password before saving
             )
-    def select(self, username, password):
+   
+    def select(self, username):
         try:
-            return self.get(username=username, password=password)
+            return self.get(username=username)
         except:
             return None
         
     def validate_login(self, fields):
-        return {}
+        errors = {}
+        # Check if both username and password are provided
+        if not fields.get('username'):
+            errors['username'] = "Username is required."
+        if not fields.get('password'):
+            errors['password'] = "Password is required."
+        # If any field is missing, return errors immediately
+        if errors:
+            return errors
+        # Check if the user exists
+        try:
+            user = self.get(username=fields['username'])
+        except:
+            errors['username'] = "User not found."
+            return errors
+        # Verify password (if using Django's password hashing)
+        if not check_password(fields['password'], user.password):
+            errors['password'] = "Incorrect password."
+
+        return errors
     
     def validate_signup(self, fields):
-        return {}
+        errors = {}
+        # Required Fields Validation
+        required_fields = ['username', 'first_name', 'last_name', 'password']
+        for field in required_fields:
+            if not fields.get(field):
+                errors[field] = f"{field.replace('_', ' ').title()} is required."
 
+        # Username uniqueness
+        if 'username' in fields:
+            if ' ' in fields['username']:
+                errors['username'] = "Username has space!"
+            if User.objects.filter(username=fields['username']).exists():
+                errors['username'] = "Username already taken."
+
+        # Email format and uniqueness
+        email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        email = fields.get('email', '')
+        if email != '': # The field is not required
+            if not re.match(email_regex, fields['email']):
+                errors['email'] = "Invalid email format."
+            elif User.objects.filter(email=fields['email']).exists():
+                errors['email'] = "Email is already registered."
+
+        # Phone number validation
+        phone_regex = r'^\+?\d{10,15}$'  # optional + and 10-15 digits
+        phone = fields.get('phone', '') 
+        if phone != '': # The field is not required
+            if not re.match(phone_regex, fields['phone']):
+                errors['phone'] = "Invalid phone number."
+            elif User.objects.filter(phone=fields['phone']).exists():
+                errors['phone'] = "Phone number already in use."
+
+        # Password strength validation
+        password = fields.get('password', '')
+        if len(password) < 8:
+            errors['password'] = "Password must be at least 8 characters long."
+        elif not any(char.isdigit() for char in password):
+            errors['password'] = "Password must contain at least one digit."
+        elif not any(char.isupper() for char in password):
+            errors['password'] = "Password must contain at least one uppercase letter."
+        elif not any(char.islower() for char in password):
+            errors['password'] = "Password must contain at least one lowercase letter."
+        elif not any(char in "!@#$%^&*()_+" for char in password):
+            errors['password'] = "Password must contain at least one special character."
+
+        if 'password2' not in fields or fields['password2'] != fields.get('password',''):
+            errors['confirm'] = "Passwords does not match."
+            
+        return errors
+    
 # Custom User Model
 class User(models.Model):
     username = models.CharField(max_length=50, unique=True)
@@ -37,12 +108,6 @@ class User(models.Model):
     photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
     
     objects = UserManager()
-    # USERNAME_FIELD = "username"  # Username is used for authentication
-    # REQUIRED_FIELDS = ["email", "first_name", "last_name"]  # Extra required fields
-    
-    # Add related_name to avoid conflict
-    # groups = models.ManyToManyField(Group, related_name="custom_user_groups", blank=True)
-    # user_permissions = models.ManyToManyField(Permission, related_name="custom_user_permissions", blank=True)
     
     def __str__(self):
         return f"{self.username} ({self.role})"

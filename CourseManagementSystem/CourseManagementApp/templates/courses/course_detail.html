@@ -37,14 +37,14 @@
             </div>
 
             <div class="mb-3">
-                <label for="cost" class="form-label">Cost</label>
-                <input class="form-control" id="cost" name="cost" value="{{ course.cost|default:'' }}" readonly>
+                <label for="cost" class="form-label">Final Cost</label>
+                <input class="form-control" id="cost" name="cost" value="{{ course.final_cost|default:'' }}" readonly>
             </div>
 
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 <label for="sale" class="form-label">Sale (%)</label>
                 <input class="form-control" id="sale" name="sale" value="{{ course.sale|default:'0.0' }}" readonly>
-            </div>
+            </div> -->
 
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
